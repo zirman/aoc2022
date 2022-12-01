@@ -1,32 +1,29 @@
 fun main() {
-    fun part1(input: List<String>): Long {
-        val food = mutableMapOf<Int, Long>()
+    fun splitOn(separator: String, input: List<String>): List<List<String>> {
+        tailrec fun splitOn(acc: List<List<String>>, input: List<String>): List<List<String>> {
+            val index = input.indexOf(separator)
 
-        var i = 0
-        for (k in input) {
-            if (k.isNotEmpty()) {
-                food[i] = food.getOrDefault(i, 0) + k.toLong()
+            return if (index == -1) {
+                acc.plusElement(input)
             } else {
-                i++
+                splitOn(
+                    acc = acc.plusElement(input.slice(0 until index)),
+                    input = input.slice((index + 1) until input.size)
+                )
             }
         }
 
-        return food.values.max()
+        return splitOn(emptyList(), input)
+    }
+
+    fun part1(input: List<String>): Long {
+        val elfs = splitOn("", input)
+        return elfs.map { elf -> elf.sumOf { it.toLong() } }.max()
     }
 
     fun part2(input: List<String>): Long {
-        val food = mutableMapOf<Int, Long>()
-
-        var i = 0
-        for (k in input) {
-            if (k.isNotEmpty()) {
-                food[i] = food.getOrDefault(i, 0) + k.toLong()
-            } else {
-                i++
-            }
-        }
-
-        return food.values.asSequence().sortedDescending().take(3).sum()
+        val elfs = splitOn("", input)
+        return elfs.map { elf -> elf.sumOf { it.toLong() } }.asSequence().sortedDescending().take(3).sum()
     }
 
     // test if implementation meets criteria from the description, like:
