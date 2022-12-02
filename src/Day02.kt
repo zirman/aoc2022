@@ -1,8 +1,8 @@
 fun main() {
-    fun gameScore(me: Long, them: Long): Long {
-        return me + 1 + when (me) {
-            them -> 3
-            (them + 1) % 3 -> 6
+    fun gameScore(myMove: Long, theirMove: Long): Long {
+        return myMove + 1 + when (myMove) {
+            theirMove -> 3
+            (theirMove + 1) % 3 -> 6
             else -> 0
         }
     }
@@ -18,11 +18,11 @@ fun main() {
 
 
     fun part2(input: List<String>): Long {
-        fun move(me: Long, them: Long): Long {
-            return when (me) {
-                0L -> (them + 2) % 3
-                1L -> them
-                else -> (them + 1) % 3
+        fun move(myMove: Long, theirMove: Long): Long {
+            return when (myMove) {
+                0L -> (theirMove + 2) % 3
+                1L -> theirMove
+                else -> (theirMove + 1) % 3
             }
         }
 
