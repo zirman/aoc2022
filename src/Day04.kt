@@ -1,18 +1,19 @@
 fun main() {
-    fun ranges(pair: String): List<LongRange> {
+    fun ranges(pair: String): List<IntRange> {
         return pair.split(',')
             .map {
                 it.split('-')
-                    .let { (a, b) -> (a.toLong()..b.toLong()) }
+                    .let { (start, end) -> start.toInt()..end.toInt() }
             }
     }
 
     fun part1(input: List<String>): Long {
         return input.sumOf { pair ->
             ranges(pair)
-                .let { (a, b) ->
-                    val s = a.intersect(b).size.toLong()
-                    s == a.last - a.first + 1 || s == b.last - b.first + 1
+                .let { (range1, range2) ->
+                    val units = range1.intersect(range2).size
+                    units == range1.last + 1 - range1.first ||
+                            units == range2.last + 1 - range2.first
                 }
                 .let { if (it) 1L else 0L }
         }
