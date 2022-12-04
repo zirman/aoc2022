@@ -16,7 +16,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
-        return input.windowed(3, 3)
+        return input.chunked(3)
             .sumOf { pack ->
                 pack.map { it.toSet() }
                     .reduce { a, b -> a.intersect(b) }
