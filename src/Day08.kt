@@ -1,73 +1,53 @@
 fun main() {
     fun part1(input: List<String>): Int {
-        val trees = input.map { row -> row.map { it - '0' } }
+        val trees = input.map { row -> row.map { it.digitToInt() } }
         val visible = trees.map { it.indices.map { false }.toMutableList() }
 
-        trees.first().indices.forEach { c ->
-            fun searchNorth(r: Int, h: Int) {
-                if (r >= trees.size) {
-                    return
-                } else if (trees[r][c] > h) {
+        for (c in trees.first().indices) {
+            var h = -1
+            for (r in trees.indices) {
+                if (trees[r][c] > h) {
                     visible[r][c] = true
-                    searchNorth(r + 1, trees[r][c])
-                } else {
-                    searchNorth(r + 1, h)
+                    h = trees[r][c]
                 }
             }
-
-            searchNorth(0, -1)
         }
 
-        trees.first().indices.forEach { c ->
-            fun searchSouth(r: Int, h: Int) {
-                if (r < 0) {
-                    return
-                } else if (trees[r][c] > h) {
+        for (c in trees.first().indices) {
+            var h = -1
+            for (r in trees.indices.reversed()) {
+                if (trees[r][c] > h) {
                     visible[r][c] = true
-                    searchSouth(r - 1, trees[r][c])
-                } else {
-                    searchSouth(r - 1, h)
+                    h = trees[r][c]
                 }
             }
-
-            searchSouth(trees.size - 1, -1)
         }
 
-        trees.indices.forEach { r ->
-            fun searchWest(c: Int, h: Int) {
-                if (c >= trees.size) {
-                    return
-                } else if (trees[r][c] > h) {
+        for (r in trees.indices) {
+            var h = -1
+            for (c in trees.first().indices) {
+                if (trees[r][c] > h) {
                     visible[r][c] = true
-                    searchWest(c + 1, trees[r][c])
-                } else {
-                    searchWest(c + 1, h)
+                    h = trees[r][c]
                 }
             }
-
-            searchWest(0, -1)
         }
 
-        trees.indices.forEach { r ->
-            fun searchEast(c: Int, h: Int) {
-                if (c < 0) {
-                    return
-                } else if (trees[r][c] > h) {
+        for (r in trees.indices) {
+            var h = -1
+            for (c in trees.first().indices.reversed()) {
+                if (trees[r][c] > h) {
                     visible[r][c] = true
-                    searchEast(c - 1, trees[r][c])
-                } else {
-                    searchEast(c - 1, h)
+                    h = trees[r][c]
                 }
             }
-
-            searchEast(trees.size - 1, -1)
         }
 
-        return visible.sumOf { it.count { it } }
+        return visible.sumOf { row -> row.count { it } }
     }
 
     fun part2(input: List<String>): Int {
-        val trees = input.map { row -> row.map { it - '0' } }
+        val trees = input.map { row -> row.map { it.digitToInt() } }
 
         val scenicScore = trees.indices.map { r ->
             trees.first().indices.map { c ->
