@@ -34,40 +34,32 @@ fun main() {
         visited.add(Knot(0, 0))
 
         input.forEach { line ->
-            val (dir, numstr) = line.split(" ")
-            val n = numstr.toInt()
+            val (dir, numStr) = line.split(" ")
+            val n = numStr.toInt()
+
+            fun iterate(n: Int, knot: Knot) {
+                repeat(n) {
+                    headKnot = knot
+                    tailKnot = iterateTailKnot(headKnot, tailKnot)
+                    visited.add(tailKnot)
+                }
+            }
 
             when (dir) {
                 "L" -> {
-                    repeat(n) {
-                        headKnot = headKnot.copy(col = headKnot.col - 1)
-                        tailKnot = iterateTailKnot(headKnot, tailKnot)
-                        visited.add(tailKnot)
-                    }
+                    iterate(n, headKnot.copy(col = headKnot.col - 1))
                 }
 
                 "R" -> {
-                    repeat(n) {
-                        headKnot = headKnot.copy(col = headKnot.col + 1)
-                        tailKnot = iterateTailKnot(headKnot, tailKnot)
-                        visited.add(tailKnot)
-                    }
+                    iterate(n, headKnot.copy(col = headKnot.col + 1))
                 }
 
                 "D" -> {
-                    repeat(n) {
-                        headKnot = headKnot.copy(row = headKnot.row + 1)
-                        tailKnot = iterateTailKnot(headKnot, tailKnot)
-                        visited.add(tailKnot)
-                    }
+                    iterate(n, headKnot.copy(row = headKnot.row + 1))
                 }
 
                 "U" -> {
-                    repeat(n) {
-                        headKnot = headKnot.copy(row = headKnot.row - 1)
-                        tailKnot = iterateTailKnot(headKnot, tailKnot)
-                        visited.add(tailKnot)
-                    }
+                    iterate(n, headKnot.copy(row = headKnot.row - 1))
                 }
             }
         }
@@ -80,18 +72,20 @@ fun main() {
         var knots = (1..10).map { Knot(0, 0) }
         visited.add(Knot(0, 0))
 
-        fun iterateTailKnots(knot: Knot): List<Knot> {
-            return buildList {
-                var tailKnot = knot
-                add(tailKnot)
-
-                for (i in 1 until knots.size) {
-                    tailKnot = iterateTailKnot(tailKnot, knots[i])
+        fun iterateTailKnots(n: Int, knot: Knot) {
+            repeat(n) {
+                knots = buildList {
+                    var tailKnot = knot
                     add(tailKnot)
-                }
 
-                visited.add(tailKnot)
+                    for (i in 1 until knots.size) {
+                        tailKnot = iterateTailKnot(tailKnot, knots[i])
+                        add(tailKnot)
+                    }
+                }
             }
+
+            visited.add(knots.last())
         }
 
         input.forEach { line ->
@@ -100,27 +94,19 @@ fun main() {
 
             when (dir) {
                 "L" -> {
-                    repeat(n) {
-                        knots = iterateTailKnots(knots[0].copy(col = knots[0].col - 1))
-                    }
+                    iterateTailKnots(n, knots[0].copy(col = knots[0].col - 1))
                 }
 
                 "R" -> {
-                    repeat(n) {
-                        knots = iterateTailKnots(knots[0].copy(row = knots[0].col + 1))
-                    }
+                    iterateTailKnots(n, knots[0].copy(row = knots[0].col + 1))
                 }
 
                 "D" -> {
-                    repeat(n) {
-                        knots = iterateTailKnots(knots[0].copy(row = knots[0].row + 1))
-                    }
+                    iterateTailKnots(n, knots[0].copy(row = knots[0].row + 1))
                 }
 
                 "U" -> {
-                    repeat(n) {
-                        knots = iterateTailKnots(knots[0].copy(row = knots[0].row - 1))
-                    }
+                    iterateTailKnots(n, knots[0].copy(row = knots[0].row - 1))
                 }
             }
         }
