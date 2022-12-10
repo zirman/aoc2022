@@ -23,7 +23,6 @@ fun main() {
 
     fun part2(input: List<String>): String {
         return input
-            .asSequence()
             .scan(listOf(1)) { signals, line ->
                 val x = signals.last()
                 val s = line.split(" ")
@@ -37,7 +36,7 @@ fun main() {
             .flatten()
             .mapIndexed { index, x -> if (x in (index % 40) - 1..(index % 40) + 1) "#" else "." }
             .windowed(40, 40, false)
-            .map { it.joinToString("") { it } }
+            .map { line -> line.joinToString("") { it } }
             .joinToString("\n") { it }
     }
 
