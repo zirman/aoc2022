@@ -1,3 +1,5 @@
+import kotlin.system.measureTimeMillis
+
 data class Monkey(
     var items: MutableList<Long>,
     val operator: String,
@@ -8,19 +10,9 @@ data class Monkey(
     var inspectedCount: Long,
 )
 
-data class Monkey2(
-    var items: MutableList<List<Int>>,
-    val operator: String,
-    val operand: String,
-    val divisibleBy: Int,
-    val trueMonkey: Int,
-    val falseMonkey: Int,
-    var inspectedCount: Long,
-)
-
 fun main() {
-    fun part1(input: List<String>): Long {
-        val monkeys = input
+    fun parseMonkeys(input: List<String>): List<Monkey> {
+        return input
             .joinToString("\n")
             .split("\n\n")
             .map { monkeyStr ->
@@ -52,8 +44,10 @@ fun main() {
                     inspectedCount = 0,
                 )
             }
+    }
 
-        repeat(20) {
+    fun iterateMonkeys(monkeys: List<Monkey>, times: Int, reducer: (Long) -> Long): Long {
+        repeat(times) {
             monkeys.forEach { monkey ->
                 monkey.inspectedCount += monkey.items.size
 
@@ -74,7 +68,7 @@ fun main() {
                             }
 
                         else -> throw Exception("Invalid Operator")
-                    } / 3L
+                    }.let { reducer(it) }
 
                     if (updatedItem % monkey.divisibleBy == 0L) {
                         monkeys[monkey.trueMonkey].items.add(updatedItem)
@@ -93,106 +87,15 @@ fun main() {
             .reduce { a, b -> a * b }
     }
 
+    fun part1(input: List<String>): Long {
+        val monkeys = parseMonkeys(input)
+        return iterateMonkeys(monkeys, times = 20, reducer = { it / 3 })
+    }
+
     fun part2(input: List<String>): Long {
-        val m = input
-            .joinToString("\n")
-            .split("\n\n")
-            .map { monkeyStr ->
-                val (
-                    startingItemsLine,
-                    operationLine,
-                    testLine,
-                    trueLine,
-                    falseLine,
-                ) = monkeyStr.split("\n").drop(1)
-
-                val startingItems = startingItemsLine.split(": ").last().split(", ").map { it.toLong() }
-
-                val (operator, operand) = """^old ([+*]) (old|\d+)$""".toRegex()
-                    .matchEntire(
-                        operationLine.split(" = ").last()
-                    )!!
-                    .destructured
-
-                val divisibleBy = testLine.split(" by ").last().toLong()
-                val trueMonkey = trueLine.split("monkey ").last().toInt()
-                val falseMonkey = falseLine.split("monkey ").last().toInt()
-
-                Monkey(
-                    items = startingItems.toMutableList(),
-                    operator = operator,
-                    operand = operand,
-                    divisibleBy = divisibleBy,
-                    trueMonkey = trueMonkey,
-                    falseMonkey = falseMonkey,
-                    inspectedCount = 0,
-                )
-            }
-
-        val divisors = m.map { it.divisibleBy.toInt() }
-
-        val monkeys = m.map { monkey ->
-            Monkey2(
-                items = monkey.items
-                    .map { n ->
-                        divisors.map { d -> n.toInt() % d }
-                    }
-                    .toMutableList(),
-                operator = monkey.operator,
-                operand = monkey.operand,
-                divisibleBy = monkey.divisibleBy.toInt(),
-                trueMonkey = monkey.trueMonkey,
-                falseMonkey = monkey.falseMonkey,
-                inspectedCount = 0,
-            )
-        }
-
-        repeat(10000) {
-            monkeys.forEachIndexed { index, monkey ->
-                monkey.inspectedCount += monkey.items.size
-
-                monkey.items.forEach { item ->
-                    val updatedItem = when (monkey.operator) {
-                        "+" ->
-                            if (monkey.operand == "old") {
-                                item.mapIndexed { index, i ->
-                                    (i + i) % divisors[index]
-                                }
-                            } else {
-                                item.mapIndexed { index, i ->
-                                    (i + monkey.operand.toInt()) % divisors[index]
-                                }
-                            }
-
-                        "*" ->
-                            if (monkey.operand == "old") {
-                                item.mapIndexed { index, i ->
-                                    (i * i) % divisors[index]
-                                }
-                            } else {
-                                item.mapIndexed { index, i ->
-                                    (i * monkey.operand.toInt()) % divisors[index]
-                                }
-                            }
-
-                        else -> throw Exception("Invalid Operator")
-                    }
-
-                    if (updatedItem[index] == 0) {
-                        monkeys[monkey.trueMonkey].items.add(updatedItem)
-                    } else {
-                        monkeys[monkey.falseMonkey].items.add(updatedItem)
-                    }
-                }
-
-                monkey.items = mutableListOf()
-            }
-        }
-
-        return monkeys.map { it.inspectedCount }
-            .sortedDescending()
-            .take(2)
-            .reduce { a, b -> a * b }
+        val monkeys = parseMonkeys(input)
+        val divisor = monkeys.map { it.divisibleBy }.reduce(Long::times)
+        return iterateMonkeys(monkeys, times = 10000, reducer = { it % divisor })
     }
 
     // test if implementation meets criteria from the description, like:
@@ -200,7 +103,7 @@ fun main() {
     check(part1(testInput) == 10605L)
     val input = readInput("Day11")
     println(part1(input))
-
+    println(measureTimeMillis { part2(input) })
     check(part2(testInput) == 2713310158L)
     println(part2(input))
 }
