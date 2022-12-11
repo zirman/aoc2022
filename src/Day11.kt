@@ -20,40 +20,43 @@ data class Monkey2(
 
 fun main() {
     fun part1(input: List<String>): Long {
-        val monkeys = input.joinToString("\n").split("\n\n").map { monkeyStr ->
-            val (
-                startingItemsLine,
-                operationLine,
-                testLine,
-                trueLine,
-                falseLine,
-            ) = monkeyStr.split("\n").drop(1)
+        val monkeys = input
+            .joinToString("\n")
+            .split("\n\n")
+            .map { monkeyStr ->
+                val (
+                    startingItemsLine,
+                    operationLine,
+                    testLine,
+                    trueLine,
+                    falseLine,
+                ) = monkeyStr.split("\n").drop(1)
 
-            val startingItems = startingItemsLine.split(": ").last().split(", ").map { it.toLong() }
+                val startingItems = startingItemsLine.split(": ").last().split(", ").map { it.toLong() }
 
-            val (operator, operand) = Regex("""^old ([+*]) (old|\d+)$""")
-                .matchEntire(operationLine.split(" = ").last())!!
-                .destructured
+                val (operator, operand) = """^old ([+*]) (old|\d+)$""".toRegex()
+                    .matchEntire(operationLine.split(" = ").last())!!
+                    .destructured
 
-            val divisibleBy = testLine.split(" by ").last().toLong()
-            val trueMonkey = trueLine.split("monkey ").last().toInt()
-            val falseMonkey = falseLine.split("monkey ").last().toInt()
+                val divisibleBy = testLine.split(" by ").last().toLong()
+                val trueMonkey = trueLine.split("monkey ").last().toInt()
+                val falseMonkey = falseLine.split("monkey ").last().toInt()
 
-
-            Monkey(
-                items = startingItems.toMutableList(),
-                operator = operator,
-                operand = operand,
-                divisibleBy = divisibleBy,
-                trueMonkey = trueMonkey,
-                falseMonkey = falseMonkey,
-                inspectedCount = 0,
-            )
-        }
+                Monkey(
+                    items = startingItems.toMutableList(),
+                    operator = operator,
+                    operand = operand,
+                    divisibleBy = divisibleBy,
+                    trueMonkey = trueMonkey,
+                    falseMonkey = falseMonkey,
+                    inspectedCount = 0,
+                )
+            }
 
         repeat(20) {
             monkeys.forEach { monkey ->
                 monkey.inspectedCount += monkey.items.size
+
                 monkey.items.forEach { item ->
                     val updatedItem = when (monkey.operator) {
                         "+" ->
@@ -91,41 +94,50 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
-        val m = input.joinToString("\n").split("\n\n").map { monkeyStr ->
-            val (
-                startingItemsLine,
-                operationLine,
-                testLine,
-                trueLine,
-                falseLine,
-            ) = monkeyStr.split("\n").drop(1)
+        val m = input
+            .joinToString("\n")
+            .split("\n\n")
+            .map { monkeyStr ->
+                val (
+                    startingItemsLine,
+                    operationLine,
+                    testLine,
+                    trueLine,
+                    falseLine,
+                ) = monkeyStr.split("\n").drop(1)
 
-            val startingItems = startingItemsLine.split(": ").last().split(", ").map { it.toLong() }
+                val startingItems = startingItemsLine.split(": ").last().split(", ").map { it.toLong() }
 
-            val (operator, operand) = Regex("""^old ([+*]) (old|\d+)$""")
-                .matchEntire(operationLine.split(" = ").last())!!
-                .destructured
+                val (operator, operand) = """^old ([+*]) (old|\d+)$""".toRegex()
+                    .matchEntire(
+                        operationLine.split(" = ").last()
+                    )!!
+                    .destructured
 
-            val divisibleBy = testLine.split(" by ").last().toLong()
-            val trueMonkey = trueLine.split("monkey ").last().toInt()
-            val falseMonkey = falseLine.split("monkey ").last().toInt()
+                val divisibleBy = testLine.split(" by ").last().toLong()
+                val trueMonkey = trueLine.split("monkey ").last().toInt()
+                val falseMonkey = falseLine.split("monkey ").last().toInt()
 
-            Monkey(
-                items = startingItems.toMutableList(),
-                operator = operator,
-                operand = operand,
-                divisibleBy = divisibleBy,
-                trueMonkey = trueMonkey,
-                falseMonkey = falseMonkey,
-                inspectedCount = 0,
-            )
-        }
+                Monkey(
+                    items = startingItems.toMutableList(),
+                    operator = operator,
+                    operand = operand,
+                    divisibleBy = divisibleBy,
+                    trueMonkey = trueMonkey,
+                    falseMonkey = falseMonkey,
+                    inspectedCount = 0,
+                )
+            }
 
         val divisors = m.map { it.divisibleBy.toInt() }
 
         val monkeys = m.map { monkey ->
             Monkey2(
-                items = monkey.items.map { n -> divisors.map { d -> n.toInt() % d } }.toMutableList(),
+                items = monkey.items
+                    .map { n ->
+                        divisors.map { d -> n.toInt() % d }
+                    }
+                    .toMutableList(),
                 operator = monkey.operator,
                 operand = monkey.operand,
                 divisibleBy = monkey.divisibleBy.toInt(),
