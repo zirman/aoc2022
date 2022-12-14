@@ -33,23 +33,23 @@ fun main() {
             else Mat.Air
         }
 
-        operator fun <T> Array<T>.set(x: Int, y: Int, t: T) {
+        operator fun Array<Mat>.set(x: Int, y: Int, t: Mat) {
             this[width * (y - minY) + (x - minX)] = t
         }
 
         val rocks = Array<Mat>(width * height) { Mat.Air }
 
-        fun Array<Mat>.toString(width: Int): String {
-            return toList().chunked(width).joinToString("\n") { row ->
-                row.joinToString("") {
-                    when (it) {
-                        Mat.Air -> "."
-                        Mat.Rock -> "#"
-                        Mat.Sand -> "o"
-                    }
-                }
-            }
-        }
+//        fun Array<Mat>.toString(width: Int): String {
+//            return toList().chunked(width).joinToString("\n") { row ->
+//                row.joinToString("") {
+//                    when (it) {
+//                        Mat.Air -> "."
+//                        Mat.Rock -> "#"
+//                        Mat.Sand -> "o"
+//                    }
+//                }
+//            }
+//        }
 
         rockRanges.forEach { r ->
             r.windowed(2, 1).forEach { (a, b) ->
@@ -90,7 +90,13 @@ fun main() {
             }
         }
 
-        while (addSand(500, 0));
+        tailrec fun addSandRec() {
+            if (addSand(500, 0)) {
+                addSandRec()
+            }
+        }
+
+        addSandRec()
 
         return rocks.count { it == Mat.Sand }
     }
@@ -130,17 +136,17 @@ fun main() {
             rocks[it, maxY] = Mat.Rock
         }
 
-        fun Array<Mat>.toString(width: Int): String {
-            return toList().chunked(width).joinToString("\n") { row ->
-                row.joinToString("") {
-                    when (it) {
-                        Mat.Air -> "."
-                        Mat.Rock -> "#"
-                        Mat.Sand -> "o"
-                    }
-                }
-            }
-        }
+//        fun Array<Mat>.toString(width: Int): String {
+//            return toList().chunked(width).joinToString("\n") { row ->
+//                row.joinToString("") {
+//                    when (it) {
+//                        Mat.Air -> "."
+//                        Mat.Rock -> "#"
+//                        Mat.Sand -> "o"
+//                    }
+//                }
+//            }
+//        }
 
         rockRanges.forEach { r ->
             r.windowed(2, 1).forEach { (a, b) ->
@@ -181,7 +187,13 @@ fun main() {
             }
         }
 
-        while (addSand(500, 0));
+        tailrec fun addSandRec() {
+            if (addSand(500, 0)) {
+                addSandRec()
+            }
+        }
+
+        addSandRec()
 
         return rocks.count { it == Mat.Sand }
     }
