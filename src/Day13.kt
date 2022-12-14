@@ -105,13 +105,13 @@ fun compareExp(e1: Exp, e2: Exp): Order {
 }
 
 fun parsePacket(line: String): Exp {
-    val tokens = sequence {
+    val tokens = buildList {
         var m = """\[|]|\d+|,""".toRegex().matchAt(line, 0)
         while (m != null) {
-            yield(m.value)
+            add(m.value)
             m = m.next()
         }
-    }.toList()
+    }
 
     return parseGroup(0, tokens)!!.let { (i, exp) ->
         assert(i == tokens.size)
@@ -126,12 +126,7 @@ fun main() {
             .split("\n\n")
             .mapIndexed { index, packets ->
                 val (p1, p2) = packets.split("\n").map { parsePacket(it) }
-
-                if (compareExp(p1, p2) == Order.Ascending) {
-                    index + 1
-                } else {
-                    0
-                }
+                if (compareExp(p1, p2) == Order.Ascending) index + 1 else 0
             }
             .sum()
     }
