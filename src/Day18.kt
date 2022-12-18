@@ -1,14 +1,17 @@
-sealed interface LavaGrid {
-    object Lava : LavaGrid
-    object Air : LavaGrid
-    object Visited : LavaGrid
+sealed interface LavaCube {
+    object Lava : LavaCube
+    object Air : LavaCube
+    object Visited : LavaCube
 }
 
-//data class(val widthX, val width)
-typealias LavaGridInfo = Pair<List<List<MutableList<LavaGrid>>>, Triple<Int, Int, Int>>
+typealias LavaMatrix = List<List<MutableList<LavaCube>>>
 
 fun main() {
-    fun parseLavaGridInfo(input: List<String>): LavaGridInfo {
+    fun LavaMatrix.widths(): Triple<Int, Int, Int> {
+        return Triple(this[0][0].size, this[0].size, size)
+    }
+
+    fun parseLavaGridInfo(input: List<String>): LavaMatrix {
         val drops = input.map { line ->
             val (x, y, z) = line.split(",")
             Triple(x.toInt(), y.toInt(), z.toInt())
@@ -25,18 +28,17 @@ fun main() {
         val widthY = maxY - minY + 3
         val widthZ = maxZ - minZ + 3
 
-        val grid = List(widthZ) { List(widthY) { MutableList<LavaGrid>(widthX) { LavaGrid.Air } } }
+        val grid = List(widthZ) { List(widthY) { MutableList<LavaCube>(widthX) { LavaCube.Air } } }
 
         drops.forEach { (x, y, z) ->
-            grid[z - minZ + 1][y - minY + 1][x - minX + 1] = LavaGrid.Lava
+            grid[z - minZ + 1][y - minY + 1][x - minX + 1] = LavaCube.Lava
         }
 
-        return Pair(grid, Triple(widthX, widthY, widthZ))
+        return grid
     }
 
-    fun floodFillSearch(state: LavaGridInfo): DeepRecursiveFunction<Triple<Int, Int, Int>, Int> {
-        val (grid, widths) = state
-        val (widthX, widthY, widthZ) = widths
+    fun floodFillSearch(grid: LavaMatrix): DeepRecursiveFunction<Triple<Int, Int, Int>, Int> {
+        val (widthX, widthY, widthZ) = grid.widths()
 
         return DeepRecursiveFunction { (x: Int, y: Int, z: Int) ->
             if (x !in 0 until widthX ||
@@ -45,11 +47,11 @@ fun main() {
             ) return@DeepRecursiveFunction 0
 
             when (grid[z][y][x]) {
-                LavaGrid.Visited -> 0
-                LavaGrid.Lava -> 1
+                LavaCube.Visited -> 0
+                LavaCube.Lava -> 1
 
-                LavaGrid.Air -> {
-                    grid[z][y][x] = LavaGrid.Visited
+                LavaCube.Air -> {
+                    grid[z][y][x] = LavaCube.Visited
 
                     callRecursive(Triple(x - 1, y, z)) +
                             callRecursive(Triple(x + 1, y, z)) +
@@ -63,15 +65,14 @@ fun main() {
     }
 
     fun part1(input: List<String>): Int {
-        val state = parseLavaGridInfo(input)
-        val (grid, widths) = parseLavaGridInfo(input)
-        val (widthX, widthY, widthZ) = widths
-        val search = floodFillSearch(state)
+        val grid = parseLavaGridInfo(input)
+        val (widthX, widthY, widthZ) = grid.widths()
+        val search = floodFillSearch(grid)
 
         return (0 until widthZ).sumOf { z ->
             (0 until widthY).sumOf { y ->
                 (0 until widthX).sumOf { x ->
-                    if (grid[z][y][x] == LavaGrid.Air) {
+                    if (grid[z][y][x] == LavaCube.Air) {
                         search(Triple(x, y, z))
                     } else {
                         0
@@ -82,9 +83,8 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val state = parseLavaGridInfo(input)
-        val search = floodFillSearch(state)
-        return search(Triple(0, 0, 0))
+        val grid = parseLavaGridInfo(input)
+        return floodFillSearch(grid)(Triple(0, 0, 0))
     }
 
     // test if implementation meets criteria from the description, like:
